@@ -1,10 +1,15 @@
+// last checked with Xcode 9.0b4
+#if swift(>=4.0)
+print("Hello, Swift 4!")
+#endif
+
 //: # Example 1 with type Int
 
 var mySet = OrderedSet<Int>()
 
 // Insert random numbers into the set
 for _ in 0..<50 {
-  mySet.insert(random(50, max: 500))
+  mySet.insert(random(min: 50, max: 500))
 }
 
 print(mySet)

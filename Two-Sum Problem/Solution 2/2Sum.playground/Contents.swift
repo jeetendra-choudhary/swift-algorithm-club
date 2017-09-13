@@ -1,17 +1,21 @@
 //: Playground - noun: a place where people can play
+// Last checked with: Version 9.0 beta 4 (9M189t)
+#if swift(>=4.0)
+print("Hello, Swift 4!")
+#endif
 
-func twoSumProblem(a: [Int], k: Int) -> ((Int, Int))? {
+func twoSumProblem(_ a: [Int], k: Int) -> ((Int, Int))? {
   var i = 0
   var j = a.count - 1
-  
+
   while i < j {
     let sum = a[i] + a[j]
     if sum == k {
       return (i, j)
     } else if sum < k {
-      ++i
+      i += 1
     } else {
-      --j
+      j -= 1
     }
   }
   return nil

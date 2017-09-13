@@ -1,6 +1,11 @@
 /* Top-down recursive version */
 
-func mergeSort(array: [Int]) -> [Int] {
+// last checked with Xcode 9.0b4
+#if swift(>=4.0)
+print("Hello, Swift 4!")
+#endif
+
+func mergeSort<T: Comparable>(_ array: [T]) -> [T] {
   guard array.count > 1 else { return array }
   let middleIndex = array.count / 2
   let leftArray = mergeSort(Array(array[0..<middleIndex]))
@@ -8,10 +13,13 @@ func mergeSort(array: [Int]) -> [Int] {
   return merge(leftPile: leftArray, rightPile: rightArray)
 }
 
-func merge(leftPile leftPile: [Int], rightPile: [Int]) -> [Int] {
+func merge<T: Comparable>(leftPile: [T], rightPile: [T]) -> [T] {
   var leftIndex = 0
   var rightIndex = 0
-  var orderedPile = [Int]()
+  var orderedPile = [T]()
+  if orderedPile.capacity < leftPile.count + rightPile.count {
+    orderedPile.reserveCapacity(leftPile.count + rightPile.count)
+  }
 
   while leftIndex < leftPile.count && rightIndex < rightPile.count {
     if leftPile[leftIndex] < rightPile[rightIndex] {
@@ -43,29 +51,29 @@ func merge(leftPile leftPile: [Int], rightPile: [Int]) -> [Int] {
 
 let array = [2, 1, 5, 4, 9]
 let sortedArray = mergeSort(array)
-
-
+let array2 = ["Tom", "Harry", "Ron", "Chandler", "Monica"]
+let sortedArray2 = mergeSort(array2)
 
 /* Bottom-up iterative version */
 
-func mergeSortBottomUp<T>(a: [T], _ isOrderedBefore: (T, T) -> Bool) -> [T] {
+func mergeSortBottomUp<T>(_ a: [T], _ isOrderedBefore: (T, T) -> Bool) -> [T] {
   let n = a.count
   var z = [a, a]   // the two working arrays
   var d = 0        // z[d] is used for reading, z[1 - d] for writing
-  
+
   var width = 1
   while width < n {
-  
+
     var i = 0
     while i < n {
 
       var j = i
       var l = i
       var r = i + width
-      
+
       let lmax = min(l + width, n)
       let rmax = min(r + width, n)
-      
+
       while l < lmax && r < rmax {
         if isOrderedBefore(z[d][l], z[d][r]) {
           z[1 - d][j] = z[d][l]
@@ -89,7 +97,7 @@ func mergeSortBottomUp<T>(a: [T], _ isOrderedBefore: (T, T) -> Bool) -> [T] {
 
       i += width*2
     }
-    
+
     width *= 2   // in each step, the subarray to merge becomes larger
     d = 1 - d    // swap active array
   }

@@ -3,12 +3,19 @@ import XCTest
 class LinkedListTest: XCTestCase {
   let numbers = [8, 2, 10, 9, 7, 5]
 
-  private func buildList() -> LinkedList<Int> {
+  fileprivate func buildList() -> LinkedList<Int> {
     let list = LinkedList<Int>()
     for number in numbers {
       list.append(number)
     }
     return list
+  }
+
+  func testSwift4() {
+    // last checked with Xcode 9.0b4
+    #if swift(>=4.0)
+      print("Hello, Swift 4!")
+    #endif
   }
 
   func testEmptyList() {
@@ -88,7 +95,7 @@ class LinkedListTest: XCTestCase {
 
   func testNodeAtIndexInEmptyList() {
     let list = LinkedList<Int>()
-    let node = list.nodeAtIndex(0)
+    let node = list.node(atIndex: 0)
     XCTAssertNil(node)
   }
 
@@ -96,7 +103,7 @@ class LinkedListTest: XCTestCase {
     let list = LinkedList<Int>()
     list.append(123)
 
-    let node = list.nodeAtIndex(0)
+    let node = list.node(atIndex: 0)
     XCTAssertNotNil(node)
     XCTAssertEqual(node!.value, 123)
     XCTAssertTrue(node === list.first)
@@ -108,21 +115,21 @@ class LinkedListTest: XCTestCase {
     let nodeCount = list.count
     XCTAssertEqual(nodeCount, numbers.count)
 
-    XCTAssertNil(list.nodeAtIndex(-1))
-    XCTAssertNil(list.nodeAtIndex(nodeCount))
+    XCTAssertNil(list.node(atIndex: -1))
+    XCTAssertNil(list.node(atIndex: nodeCount))
 
-    let first = list.nodeAtIndex(0)
+    let first = list.node(atIndex: 0)
     XCTAssertNotNil(first)
     XCTAssertTrue(first === list.first)
     XCTAssertEqual(first!.value, numbers[0])
 
-    let last = list.nodeAtIndex(nodeCount - 1)
+    let last = list.node(atIndex: nodeCount - 1)
     XCTAssertNotNil(last)
     XCTAssertTrue(last === list.last)
     XCTAssertEqual(last!.value, numbers[nodeCount - 1])
 
     for i in 0..<nodeCount {
-      let node = list.nodeAtIndex(i)
+      let node = list.node(atIndex: i)
       XCTAssertNotNil(node)
       XCTAssertEqual(node!.value, numbers[i])
     }
@@ -142,20 +149,20 @@ class LinkedListTest: XCTestCase {
     XCTAssertFalse(list.isEmpty)
     XCTAssertEqual(list.count, 1)
 
-    let node = list.nodeAtIndex(0)
+    let node = list.node(atIndex: 0)
     XCTAssertNotNil(node)
     XCTAssertEqual(node!.value, 123)
   }
 
   func testInsertAtIndex() {
     let list = buildList()
-    let prev = list.nodeAtIndex(2)
-    let next = list.nodeAtIndex(3)
+    let prev = list.node(atIndex: 2)
+    let next = list.node(atIndex: 3)
     let nodeCount = list.count
 
     list.insert(444, atIndex: 3)
 
-    let node = list.nodeAtIndex(3)
+    let node = list.node(atIndex: 3)
     XCTAssertNotNil(node)
     XCTAssertEqual(node!.value, 444)
     XCTAssertEqual(nodeCount + 1, list.count)
@@ -166,11 +173,71 @@ class LinkedListTest: XCTestCase {
     XCTAssertTrue(next!.previous === node)
   }
 
+  func testInsertListAtIndex() {
+    let list = buildList()
+    let list2 = LinkedList<Int>()
+    list2.append(99)
+    list2.append(102)
+    list.insert(list2, atIndex: 2)
+    XCTAssertTrue(list.count == 8)
+    XCTAssertEqual(list.node(atIndex: 1)?.value, 2)
+    XCTAssertEqual(list.node(atIndex: 2)?.value, 99)
+    XCTAssertEqual(list.node(atIndex: 3)?.value, 102)
+    XCTAssertEqual(list.node(atIndex: 4)?.value, 10)
+  }
+
+  func testInsertListAtFirstIndex() {
+    let list = buildList()
+    let list2 = LinkedList<Int>()
+    list2.append(99)
+    list2.append(102)
+    list.insert(list2, atIndex: 0)
+    XCTAssertTrue(list.count == 8)
+    XCTAssertEqual(list.node(atIndex: 0)?.value, 99)
+    XCTAssertEqual(list.node(atIndex: 1)?.value, 102)
+    XCTAssertEqual(list.node(atIndex: 2)?.value, 8)
+  }
+
+  func testInsertListAtLastIndex() {
+    let list = buildList()
+    let list2 = LinkedList<Int>()
+    list2.append(99)
+    list2.append(102)
+    list.insert(list2, atIndex: list.count)
+    XCTAssertTrue(list.count == 8)
+    XCTAssertEqual(list.node(atIndex: 5)?.value, 5)
+    XCTAssertEqual(list.node(atIndex: 6)?.value, 99)
+    XCTAssertEqual(list.node(atIndex: 7)?.value, 102)
+  }
+
+  func testAppendList() {
+    let list = buildList()
+    let list2 = LinkedList<Int>()
+    list2.append(99)
+    list2.append(102)
+    list.append(list2)
+    XCTAssertTrue(list.count == 8)
+    XCTAssertEqual(list.node(atIndex: 5)?.value, 5)
+    XCTAssertEqual(list.node(atIndex: 6)?.value, 99)
+    XCTAssertEqual(list.node(atIndex: 7)?.value, 102)
+  }
+
+  func testAppendListToEmptyList() {
+    let list = LinkedList<Int>()
+    let list2 = LinkedList<Int>()
+    list2.append(5)
+    list2.append(10)
+    list.append(list2)
+    XCTAssertTrue(list.count == 2)
+    XCTAssertEqual(list.node(atIndex: 0)?.value, 5)
+    XCTAssertEqual(list.node(atIndex: 1)?.value, 10)
+  }
+
   func testRemoveAtIndexOnListWithOneElement() {
     let list = LinkedList<Int>()
     list.append(123)
 
-    let value = list.removeAtIndex(0)
+    let value = list.remove(atIndex: 0)
     XCTAssertEqual(value, 123)
 
     XCTAssertTrue(list.isEmpty)
@@ -181,16 +248,16 @@ class LinkedListTest: XCTestCase {
 
   func testRemoveAtIndex() {
     let list = buildList()
-    let prev = list.nodeAtIndex(2)
-    let next = list.nodeAtIndex(3)
+    let prev = list.node(atIndex: 2)
+    let next = list.node(atIndex: 3)
     let nodeCount = list.count
 
     list.insert(444, atIndex: 3)
 
-    let value = list.removeAtIndex(3)
+    let value = list.remove(atIndex: 3)
     XCTAssertEqual(value, 444)
 
-    let node = list.nodeAtIndex(3)
+    let node = list.node(atIndex: 3)
     XCTAssertTrue(next === node)
     XCTAssertTrue(prev!.next === node)
     XCTAssertTrue(node!.previous === prev)
@@ -247,5 +314,27 @@ class LinkedListTest: XCTestCase {
     XCTAssertTrue(first === list.last)
     XCTAssertTrue(last === list.first)
     XCTAssertEqual(nodeCount, list.count)
+  }
+
+  func testArrayLiteralInitTypeInfer() {
+    let arrayLiteralInitInfer: LinkedList = [1.0, 2.0, 3.0]
+
+    XCTAssertEqual(arrayLiteralInitInfer.count, 3)
+    XCTAssertEqual(arrayLiteralInitInfer.first?.value, 1.0)
+    XCTAssertEqual(arrayLiteralInitInfer.last?.value, 3.0)
+    XCTAssertEqual(arrayLiteralInitInfer[1], 2.0)
+    XCTAssertEqual(arrayLiteralInitInfer.removeLast(), 3.0)
+    XCTAssertEqual(arrayLiteralInitInfer.count, 2)
+  }
+
+  func testArrayLiteralInitExplicit() {
+    let arrayLiteralInitExplicit: LinkedList<Int> = [1, 2, 3]
+
+    XCTAssertEqual(arrayLiteralInitExplicit.count, 3)
+    XCTAssertEqual(arrayLiteralInitExplicit.first?.value, 1)
+    XCTAssertEqual(arrayLiteralInitExplicit.last?.value, 3)
+    XCTAssertEqual(arrayLiteralInitExplicit[1], 2)
+    XCTAssertEqual(arrayLiteralInitExplicit.removeLast(), 3)
+    XCTAssertEqual(arrayLiteralInitExplicit.count, 2)
   }
 }
